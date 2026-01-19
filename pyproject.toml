@@ -1,0 +1,17 @@
+[project]
+name = "llm-guardian"
+version = "0.1.0"
+description = "Security reverse proxy for LLMs"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "google-genai",
+    "presidio-analyzer",
+    "presidio-anonymizer",
+    "spacy",
+    "scikit-learn",
+    "python-dotenv",
+]
+
+[dependency-groups]
+dev = ["pytest", "pytest-playwright", "httpx", "ruff", "pyright", "pip-audit"]

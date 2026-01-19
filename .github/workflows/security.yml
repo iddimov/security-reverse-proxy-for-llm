@@ -1,0 +1,117 @@
+name: Security Pipeline
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'uv'
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Lint code (import sorting)
+        run: uv run ruff check . --select I
+      
+      - name: Type check with Pylance
+        run: uv run pyright app/ || true
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'uv'
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Build Docker image
+        run: docker build -t llm-guardian:latest -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+      
+      - name: Start proxy container
+        run: |
+          docker run -d \
+            -p 8000:8000 \
+            --name llm-guardian \
+            -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+            llm-guardian:latest
+          sleep 15 # Wait for SpaCy model to load and server to start
+      
+      - name: Health check
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/ > /dev/null; then
+              echo "✅ Proxy is healthy"
+              exit 0
+            fi
+            echo "Waiting for proxy... ($i/30)"
+            sleep 2
+          done
+          echo "❌ Proxy failed to start"
+          docker logs llm-guardian
+          exit 1
+      
+      - name: Run security tests
+        run: uv run pytest tests/test_api.py -v -s
+      
+      - name: Check container logs on failure
+        if: failure()
+        run: docker logs llm-guardian
+      
+      - name: Cleanup
+        if: always()
+        run: docker stop llm-guardian && docker rm llm-guardian || true
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'uv'
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Security audit with pip-audit
+        run: uv run pip-audit --skip-editable || true
+      
+      - name: Check for hardcoded secrets
+        run: |
+          if grep -r "AKIA-" . --include="*.py" --exclude-dir=".git"; then
+            echo "⚠️ Potential AWS credentials found"
+            exit 1
+          fi
