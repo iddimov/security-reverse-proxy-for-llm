@@ -16,3 +16,12 @@ dependencies = [
 
 [dependency-groups]
 dev = ["pytest", "pytest-playwright", "httpx", "ruff", "pyright", "pip-audit"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["I"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
