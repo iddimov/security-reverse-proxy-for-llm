@@ -1,8 +1,10 @@
 import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from google import genai
+
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from google import genai
+from pydantic import BaseModel
+
 from .security import SecurityService
 
 # Load variables from .env if it exists
