@@ -13,10 +13,14 @@ load_dotenv()
 app = FastAPI(title="LLM Guardian Proxy")
 security = SecurityService()
 
-# Retrieve key from environment
+# Retrieve keys from environment
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise ValueError("GEMINI_API_KEY not found in environment")
+
+model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+if not model_name:
+    raise ValueError("GEMINI_MODEL not found in environment")
 
 client = genai.Client(api_key=api_key)
 
@@ -37,7 +41,7 @@ async def secure_llm_call(request: PromptRequest):
     # Authorized Forwarding
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model=model_name,
             contents=request.prompt
         )
         return {"status": "success", "response": response.text}
