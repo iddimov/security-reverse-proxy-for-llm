@@ -22,6 +22,3 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["I"]
-
-[tool.ruff.lint.isort]
-force-single-line = true
