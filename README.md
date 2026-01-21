@@ -1,3 +1,4 @@
+[Link to my blog post](https://ivandimov.dev/the-automated-confidentiality-tripwire)
 # 🛡️ LLM Guardian: Semantic Security Proxy
 LLM Guardian is a production-ready security reverse proxy designed to sit between your internal applications and external Large Language Models (like Google Gemini).
 
