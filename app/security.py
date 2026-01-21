@@ -19,7 +19,7 @@ class SecurityService:
     def lexical_scan(self, text: str):
         """Returns True if high-confidence PII is detected."""
         results = self.analyzer.analyze(text=text, entities=None, language='en')
-        return any(r.score > 0.7 for r in results)
+        return any(r.score > 0.8 for r in results)
 
     def semantic_scan(self, text: str):
         """Calculates similarity against internal secrets."""
