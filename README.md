@@ -38,7 +38,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ## Clone the repository
 ```
 git clone https://github.com/iddimov/security-reverse-proxy-for-llm.git
-cd llm-guardian
+cd security-reverse-proxy-for-llm
 ```
 ## Install dependencies and create virtual environment
 ```
@@ -72,13 +72,13 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 **1. Build the Docker image:**
 Bash
 ```
-docker build -t llm-guardian .
+docker build -t security-reverse-proxy-for-llm .
 ```
 
 **2. Run the container:**
 Bash
 ```
-docker run -p 8000:8000 --env-file .env llm-guardian
+docker run -p 8000:8000 --env-file .env security-reverse-proxy-for-llm
 ```
 The proxy will start and be available at `http://localhost:8000`
 
