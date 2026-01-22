@@ -37,7 +37,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 2. Setup & Installation
 ## Clone the repository
 ```
-git clone https://github.com/your-username/llm-guardian.git
+git clone https://github.com/iddimov/security-reverse-proxy-for-llm.git
 cd llm-guardian
 ```
 ## Install dependencies and create virtual environment
